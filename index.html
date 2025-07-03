@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Trading Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 mt-8">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Bitcoin Trading Calculator</h1>
+            <p class="text-gray-600 text-sm">Calculate your profit from selling and buying back Bitcoin</p>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Bitcoin Amount -->
+            <div>
+                <label for="bitcoinAmount" class="block text-sm font-medium text-gray-700 mb-2">
+                    Bitcoin Amount (BTC)
+                </label>
+                <input 
+                    type="number" 
+                    id="bitcoinAmount" 
+                    step="0.00000001"
+                    min="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00000000"
+                >
+            </div>
+
+            <!-- Selling Rate -->
+            <div>
+                <label for="sellingRate" class="block text-sm font-medium text-gray-700 mb-2">
+                    Selling Rate (USD per BTC)
+                </label>
+                <input 
+                    type="number" 
+                    id="sellingRate" 
+                    step="0.01"
+                    min="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                >
+            </div>
+
+            <!-- Expected Buying Rate -->
+            <div>
+                <label for="buyingRate" class="block text-sm font-medium text-gray-700 mb-2">
+                    Expected Buying Rate (USD per BTC)
+                </label>
+                <input 
+                    type="number" 
+                    id="buyingRate" 
+                    step="0.01"
+                    min="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                >
+            </div>
+
+            <!-- Calculate Button -->
+            <button 
+                onclick="calculateProfit()" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+                Calculate Profit
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="mt-6 p-4 bg-gray-50 rounded-lg hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Results</h3>
+            
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Sell Value:</span>
+                    <span id="sellValue" class="font-medium text-gray-800">$0.00</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Buy Back Cost:</span>
+                    <span id="buyBackCost" class="font-medium text-gray-800">$0.00</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Remaining Cash:</span>
+                    <span id="remainingCash" class="font-medium text-gray-800">$0.00</span>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="flex justify-between text-base font-semibold">
+                    <span>Net Profit:</span>
+                    <span id="netProfit" class="text-green-600">$0.00</span>
+                </div>
+                
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Profit Percentage:</span>
+                    <span id="profitPercentage" class="font-medium text-gray-800">0.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning for negative profit -->
+        <div id="warningMessage" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md hidden">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-red-700 text-sm font-medium">This trade would result in a loss!</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateProfit() {
+            // Get input values
+            const bitcoinAmount = parseFloat(document.getElementById('bitcoinAmount').value) || 0;
+            const sellingRate = parseFloat(document.getElementById('sellingRate').value) || 0;
+            const buyingRate = parseFloat(document.getElementById('buyingRate').value) || 0;
+
+            // Validate inputs
+            if (bitcoinAmount <= 0 || sellingRate <= 0 || buyingRate <= 0) {
+                alert('Please enter valid positive numbers for all fields.');
+                return;
+            }
+
+            // Calculate values
+            const sellValue = bitcoinAmount * sellingRate;
+            const buyBackCost = bitcoinAmount * buyingRate;
+            const remainingCash = sellValue - buyBackCost;
+            const netProfit = remainingCash;
+            const profitPercentage = ((netProfit / sellValue) * 100);
+
+            // Update results
+            document.getElementById('sellValue').textContent = `$${sellValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('buyBackCost').textContent = `$${buyBackCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('remainingCash').textContent = `$${remainingCash.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('netProfit').textContent = `$${netProfit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('profitPercentage').textContent = `${profitPercentage.toFixed(2)}%`;
+
+            // Color code profit/loss
+            const profitElement = document.getElementById('netProfit');
+            const percentageElement = document.getElementById('profitPercentage');
+            const warningMessage = document.getElementById('warningMessage');
+
+            if (netProfit >= 0) {
+                profitElement.className = 'text-green-600';
+                percentageElement.className = 'font-medium text-green-600';
+                warningMessage.classList.add('hidden');
+            } else {
+                profitElement.className = 'text-red-600';
+                percentageElement.className = 'font-medium text-red-600';
+                warningMessage.classList.remove('hidden');
+            }
+
+            // Show results
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        // Add event listeners for Enter key
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calculateProfit();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
